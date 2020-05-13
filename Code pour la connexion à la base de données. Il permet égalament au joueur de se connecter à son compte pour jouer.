@@ -1,0 +1,185 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using MySql.Data.MySqlClient;
+using System.IO;
+using UnityEngine.SceneManagement;
+
+
+public class connexionBDD : MonoBehaviour {
+
+	public string host;
+	public string database;
+	public string username;
+	public string password;
+	public Text txtState;
+	MySqlConnection cnx;
+	public InputField ifLogin;
+	public InputField ifPassword;
+	public Text txtLogin;
+	
+
+	
+
+	
+	void ConnectBDD () {
+		string constr = "Server=" + host + ";DATABASE=" + database + ";User ID=" + username + ";Password=" +password + ";Pooling=true;charset=utf8;";
+
+		try
+		{
+			cnx = new MySqlConnection(constr);
+			cnx.Open();
+			//txtState.text = cnx.State.ToString();
+
+		}
+
+		catch (IOException ex) {
+			txtState.text = ex.ToString();
+		}
+		
+	}
+	
+
+
+	void OnApplicationQuit()
+	{
+		Debug.Log ("ShutdownConnexion !");
+
+		if (cnx != null && cnx.State.ToString() == "Closed"){
+			cnx.Close();
+		}
+	}
+
+	/*public void Register()
+	{
+		ConnectBDD();
+		bool Exist = false;
+
+		//Vérification existance pseudo
+		string requeteverif = "SELECT pseudo FROM compte WHERE pseudo='" + ifLogin.text + "'";
+		MySqlCommand cmdverif = new MySqlCommand(requeteverif, cnx);
+		MySqlDataReader readerverif = cmdverif.ExecuteReader();
+
+		while (readerverif.Read())
+		{
+			if(readerverif["pseudo"].ToString() != "")
+			{
+				txtLogin.text = "Le pseudo existe déjà. Veuillez en choisir un autre.";
+				Exist = true;
+			}
+		}
+
+		readerverif.Close();
+
+		if (!Exist)
+		{
+			//Debug.Log("cc");
+			string requete = "INSERT INTO compte VALUES (default,'" + ifLogin.text + "','" + ifPassword.text +"')";
+			MySqlCommand cmd = new MySqlCommand(requete, cnx);
+			try
+			{
+				cmd.ExecuteReader();
+				txtLogin.text = "Register succesfull !";
+
+				SceneManager.LoadScene("Scène1");
+
+			}
+
+			catch (IOException ex)
+			{
+				txtState.text = ex.ToString();
+			}
+
+			cmd.Dispose();
+			cnx.Close();
+		}
+	}*/
+
+	/*public void Connexion()
+	{
+		ConnectBDD();
+		string pass = null;
+
+		try
+		{
+			MySqlCommand cmdsql = new MySqlCommand("SELECT * FROM compte WHERE pseudo='" + ifLogin.text + "'", cnx);
+			MySqlDataReader readerlogin = cmdsql.ExecuteReader();
+
+			while (readerlogin.Read())
+			{
+				pass = readerlogin["password"].ToString();
+				if (pass == ifPassword.text)
+				{
+					txtLogin.text = "Bienvenu !";
+					//string requeteAjout = "INSERT INTO player (nom) VALUES('Gladiator')";
+					//MySqlCommand cmdg = new MySqlCommand(requeteAjout, cnx);
+					SceneManager.LoadScene("Scène1");
+				}
+
+				else
+				{
+					txtLogin.text = "Pseudo ou mot de passe invalide.";
+					readerlogin.Close();
+				}
+			}
+			if (pass == null)
+			{
+				txtLogin.text = "Not existing account";
+			}
+
+		}
+
+
+
+		catch (IOException EX)
+		{
+			txtState.text = EX.ToString();
+		}
+		cnx.Close();
+
+			
+	}*/
+
+	public void Login()
+	{
+		ConnectBDD();
+		string pass = null;
+		try
+		{
+			MySqlCommand cmdlogin = new MySqlCommand("SELECT * FROM compte WHERE pseudo='" + ifLogin.text + "'", cnx);
+			MySqlDataReader myReader = cmdlogin.ExecuteReader();
+
+			while (myReader.Read())
+			{
+				pass = myReader["password"].ToString();
+				if (pass == ifPassword.text)
+				{
+					txtLogin.text = "Connexion réussie !";
+					//string requeteAjout = "INSERT INTO player (nom) VALUES('Gladiator')";
+					//MySqlCommand cmdg = new MySqlCommand(requeteAjout, cnx);
+					SceneManager.LoadScene("Scène1");
+					
+				}
+				else
+				{
+					txtLogin.text = "Pseudo ou mot de passe invalide";
+				}
+			}
+			if (pass == null)
+			{
+				txtLogin.text = "Le compte n'existe pas";
+			}
+			myReader.Close();
+		}
+		catch(IOException ex)
+		{
+			txtState.text = ex.ToString();
+		}
+		cnx.Close();
+
+		
+		
+	}
+
+}
