@@ -1,0 +1,136 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ComportementPerso : MonoBehaviour
+{
+	//Barre de vie du personnage
+	public Image barreVieUI;
+
+	//Animations du personnage (Player)
+	Animation animations; //Correspond à toutes les animations du joueurs
+
+	//Vitesse de déplacement du personnage
+	public float vitesseMarche;
+	public float vitesseRotation;
+	public Vector3 vitesseSaut;
+
+
+	//Choix des touches
+	public string toucheAvancer;
+	public string toucheCourse;
+	public string toucheReculer;
+	public string toucheDroit;
+	public string toucheGauche;
+	public string toucheSauter;
+	public string toucheAttaque;
+	public Vector3 hauteurSaut; //Vecteur 3 car lors du saut, il faut le type "Vector 3"
+	CapsuleCollider playerCollider; //Boîte de collision du joueur
+	void Start() //S'active lors du lancement du jeu
+	{
+		barreVieUI = gameObject.GetComponent<Image>();
+		animations = gameObject.GetComponent<Animation>(); //Assignation de la variable "animations" à Animation qui se trouve dans "Player". animations s'applique à Player
+		playerCollider = gameObject.GetComponent<CapsuleCollider>(); //Assignation de la variable "playerCollider" à CapsuleCollider qui se trouve dans "Player". playerCollider s'applique à Player
+	}
+
+
+	
+
+	//Détecte si le joueur est en contact avec le sol
+	//bool contactSol()
+	//{
+		//return Physics.CheckCapsule(playerCollider.bounds.center, new Vector3(playerCollider.bounds.center.x, playerCollider.bounds.min.y - 0.1f, playerCollider.bounds.center.z), 0.1506195f);
+	//}
+
+
+	void OnCollisionEnter(Collision coll)
+	{
+		if (coll.gameObject.tag == "enemy" && Input.GetKey(toucheAttaque))
+		{
+			
+			Destroy(GameObject.FindGameObjectWithTag("enemy"));
+		}
+		if (coll.gameObject.tag == "enemy" && !Input.GetKey(toucheAttaque))
+		{
+			animations.Play("die");
+		}
+
+	}
+
+
+	void Update()
+	{	
+		//Le Time.deltaTime permet d'adapter l'allure en fonction du temps.
+
+		//transform.Translate permet une roatation en fonction des axes. x pour aller de droite à gauche ou inversement, y pour aller de haut en bas ou inversement, puis z pour avancer ou reculer. 
+		
+		//Si on avance
+		if (Input.GetKey(toucheAvancer) &&! Input.GetKey(toucheCourse)) //Si l'utilisateur appuie sur la touche configurée de toucheAvancer. (Input.GetKey(toucheAvancer) || Input.GetKey(toucheCourse) car le personnage ne peut pas jouer 2 animations en même temps.
+		{
+			transform.Translate(0, 0, vitesseMarche * Time.deltaTime);
+			animations.Play("walk"); // L'animation walk est activée pour le joueur
+		}
+
+		//Si on cours
+		if (Input.GetKey(toucheAvancer) && Input.GetKey(toucheCourse)) //Si l'utilisateur appuie sur la touche configurée de toucheAvancer et sur la touche configurée de toucheCourse
+		{
+			transform.Translate(0, 0, vitesseMarche * Time.deltaTime*3); //Il cours 3 fois plus vite qu'il ne marche
+			animations.Play("run");
+		}
+		 
+		//Si on recule
+		if (Input.GetKey(toucheReculer))
+		{
+			transform.Translate(0, 0, -vitesseMarche * Time.deltaTime);
+			animations.Play("walk");
+		}
+		
+		//transform.Rotate permet au personnage d'effectuer une rotation sur lui-même en fonction de l'axe choisi (Rotation sur un axe)
+		
+		//Rotation à droite
+		if (Input.GetKey(toucheDroit))
+		{
+			transform.Rotate(0, vitesseRotation * Time.deltaTime, 0);
+
+		}
+
+		//Rotation à gauche
+		if (Input.GetKey(toucheGauche))
+			
+			{
+				transform.Rotate(0, -vitesseRotation * Time.deltaTime, 0);
+
+			}
+
+		//Si le personnage n'avance pas ou ne recule pas, jouer l'animation "idle" de respiration
+		if (!Input.GetKey(toucheAvancer) && !Input.GetKey(toucheCourse) && !Input.GetKey(toucheReculer)&& !Input.GetKey(toucheAttaque))
+		{
+			animations.Play("idle");
+		}
+
+		//Si on attaque
+		if (Input.GetKey(toucheAttaque))
+		{
+			
+			animations.Play("attack");
+		}
+		//Si le personnage touche le sol, alors il peut sauter
+		//if (contactSol() && Input.GetKeyDown(KeyCode.Space))
+		//{
+			//Préparation du saut
+			//Vector3 v = gameObject.GetComponent<Rigidbody>().velocity;
+			//v.y = vitesseSaut.y;
+			//transform.Translate(0, vitesseRotation * Time.deltaTime, 0);
+
+			//Saut
+			//gameObject.GetComponent<Rigidbody>().velocity = vitesseSaut;
+
+			
+
+
+		//}
+
+
+	}
+}
